@@ -9,60 +9,95 @@ var sha3_256 = require("js-sha3").sha3_256;
 
 var secret = process.argv[2];
 
-
 if(secret=='read'){
   //Decrypt split info from user.
-  var plain='';
   var lam='';
   var miu='';
   //read Staff's public key & Encryption.
-  var staff_pk='';
-  function readFile(){
+
+  function readStaff(staff_pk,callback){
     var fs = require("fs"),
-     lineReader = require('line-reader'),
+      lineReader = require('line-reader'),
       filename = "staff_pk.txt",
       encode = "utf8";
     var input = fs.createReadStream('staff_pk.txt');
     var remaining = '';
+
     //read data line-by-line
+
     input.on('data', function(data) {
       remaining += data;
+
+      var index = remaining.indexOf('\n');
+      while (index > -1) {
+        var line = remaining.substring(0, index);//remove oher info
+        remaining = remaining.substring(index + 1);//remove other info
+
+        staff_pk = line;
+        index = remaining.indexOf('\n');
+        setTimeout(callback(staff_pk), 1000);
+      }
+    });
+
+    input.on('end', function() {
+      if (remaining.length > 0) {
+        //console.log('Line: ' + remaining);
+      }
+    });
+  }
+  function encryptstaff(plain,callback){
+    var fs = require("fs"),
+      lineReader = require('line-reader'),
+      filename = "server1_plain.txt",
+      encode = "utf8";
+    var input = fs.createReadStream('server1_plain.txt');
+    var remaining = '';
+
+    //read data line-by-line
+
+    input.on('data', function(data) {
+      remaining += data;
+
       var index = remaining.indexOf('\n');
       while (index > -1) {
         var line = remaining.substring(0, index);//remove oher info
         remaining = remaining.substring(index + 1);//remove other info
         //console.log('Line: ' + line);
         //console.log('typeof: ' + typeof(line));
-        staff_pk = line;
-        console.log('------');
-        //Create Staff's public key.
-        KeyPairGenerator(1024,staff_pk);
-        //Encryt data with Server3's public key.
-        cipher3=key['public_key'].raw_encrypt(m1,1080);//about 32bits, input 40000000000
-        console.log("cipher3 : "+cipher3);
-        //Write the cipher3 to file.
-        fs.writeFile("cipher3.txt", 'cipher3 : '+cipher3+'\nhash function : sha3-256', function(err) {
-            if(err) {
-                console.log(err);
-            } else {
-              console.log("The cipher3 file was saved!");
-        }
-        });
+        plain = line;
         index = remaining.indexOf('\n');
+        setTimeout(callback(plain), 1000);
       }
     });
 
-    input.on('end', function() {
-      if (remaining.length > 0) {
-        console.log('Line: ' + remaining);
-      }
-    });
   }
-  readFile();
-
-  //console.log("ans : "+ans);
-
-  //console.log("staff_pk : "+staff_pk);
+  //main function!
+  var staff_pk='';
+  var plain='';
+  var paillier_cipher1='';
+  //read staff's pk
+  readStaff(staff_pk,function(response){
+    staff_pk = response;
+    //encrypt data1 to staff!
+    encryptstaff(plain,function(response){
+      plain = response;
+      //console.log('staff_pk :'+staff_pk);
+      //console.log('plain :'+plain);
+      KeyPairGenerator(1024,staff_pk);
+      //console.log("staff_pk_g : "+key['public_key'].toJSON()['g']);
+      //console.log("staff_pk_n : "+key['public_key'].toJSON()['n']);
+      paillier_cipher1=key['public_key'].raw_encrypt(Number(plain),1080);//about 32bits, input 40000000000
+      //console.log('paillier_cipher1 :'+paillier_cipher1);
+      fs.writeFile("paillier_cipher1.txt", /*'cipher3 : '+*/paillier_cipher1+'\nhash function : sha3-256', function(err) {
+          if(err) {
+              console.log(err);
+          } else {
+            console.log("The paillier_cipher1 file was saved!");
+      }
+      });
+    })
+  })
+  //console.log('staff_pk :'+staff_pk);
 }
 // generate server1's key pair.
 else{
@@ -92,86 +127,12 @@ else{
     }*/
   }
 
-  //encrypt plaintext to ciphertext, should not be implmented on this side.
-  function Encryption(){
-    cipher1=key['public_key'].raw_encrypt(m1,1080);//about 32bits, input 40000000000
-    cipher2=key['public_key'].raw_encrypt(m2,1080);
-    cipher3=key['public_key'].raw_encrypt(m3,1080);
-  }
-  //show up public key
-  function printPublicKey(){
-    console.log("Public Key : ");
-    console.log("g : "+key['public_key'].toJSON()['g']);
-    console.log("n : "+key['public_key'].toJSON()['n']);
-    //console.log("sk : "+key['private_key'].getPublicKey().toJSON()['g']);
-  }
-  //show up private key
-  function printPrivateKey(){
-    console.log("Private Key : ");
-    console.log("lambda : "+key['private_key'].toJSON()['lambda']);
-    console.log("mu : "+key['private_key'].toJSON()['mu']);
-  }
-
-  var tmp='';
-  var c=0;
-  var tmp1='';
-  var tmp2='';
-  var tmp3='';
-  var ciphertextOP;
-  //show up ciphertext
-  function CipherOperation(){
-    tmp='';
-    c=0;
-    tmp1='';
-    for(var a=0;typeof(cipher1[a.toString()])=="number"||a.toString()=='t'||a.toString()=='s';a++){
-      tmp1 = tmp1 + cipher1[a.toString()];
-    }
-
-    tmp2='';
-    for(var a=0;typeof(cipher2[a.toString()])=="number"||a.toString()=='t'||a.toString()=='s';a++){
-      tmp2 = tmp2 + cipher2[a.toString()];
-    }
-
-    tmp3='';
-    for(var a=0;typeof(cipher3[a.toString()])=="number"||a.toString()=='t'||a.toString()=='s';a++){
-      tmp3 = tmp3 + cipher3[a.toString()];
-    }
-
-    ciphertextOP=cipher1.multiply(cipher2).multiply(cipher3);
-    c='';
-    for(var a=0;typeof(ciphertextOP[a.toString()])=="number"||a.toString()=='t'||a.toString()=='s';a++){
-      c = c + ciphertextOP[a.toString()];
-    }
-    //console.log("Cipher Operation : "+c);
-  }
-  function printCipher(){
-    console.log("Cipher1 : "+tmp1);
-    console.log("Cipher2 : "+tmp2);
-    console.log("Cipher3 : "+tmp3);
-    console.log("Cipher Operation : "+c);
-  }
-  //Decrypt the cipher text to plain text, we can obtain homomorphic property. e.g C1*C2*C3 = m1+m2+m3
-  function Decryption(){
-    KeyPairGenerator(1024);
-    var tt='2531529960021248298936326408016121626231189368459476431587381274660079672460157381351067229156260937819719365232724046712847026357624653628144423648589757430423995934866306556825947697697068985436707931425990083902219976779143048181414296863144787606415892390922625910917267657059687032591303762372426316978578814366844917877624048260917096615176162320743972116608777462908219416287845505544233215443851852985965396794649957784925714337834178329421633764316957938127227326691583915118045874112769848863534270166821489279112640445525172561127587101631946743238845579265446432790383948823051060509400191922575044197297';
-    var tbn = new jsbn(tt.toString(),10);
-    //var ans=key['private_key'].raw_decrypt(ciphertextOP)[0];
-    var ans=key['private_key'].raw_decrypt(tbn)[0];
-    console.log(ans);
-  }
 
 
 
   KeyPairGenerator();
-  //WriteToFile();
-  //printPublicKey();
-  //printPrivateKey();
-  //Encryption();
-  //CipherOperation();
-  //printCipher();
-  //Decryption();
   WriteToFile();
-  //readFile();
+
   function WriteToFile() {
     //write pk
     fs.writeFile("server1_pk.txt",key['public_key'].toJSON()['n']+'\n'/*+key['public_key'].toJSON()['g']*/,
@@ -190,35 +151,6 @@ else{
         } else {
           console.log("The server1_sk file was saved!");
     }
-    });
-  }
-
-  function readFile(pub){
-    var fs = require("fs"),
-     lineReader = require('line-reader'),
-      filename = "server1_pk.txt",
-      encode = "utf8";
-    var input = fs.createReadStream('server1_pk.txt');
-    var remaining = '';
-    //read data line-by-line
-    input.on('data', function(data) {
-      remaining += data;
-      var index = remaining.indexOf('\n');
-      while (index > -1) {
-        var line = remaining.substring(0, index);//remove oher info
-        remaining = remaining.substring(index + 1);//remove other info
-        console.log('Line: ' + line);
-        console.log('typeof: ' + typeof(line));
-        pub = line;
-        console.log('------');
-        index = remaining.indexOf('\n');
-      }
-    });
-
-    input.on('end', function() {
-      if (remaining.length > 0) {
-        console.log('Line: ' + remaining);
-      }
     });
   }
 }

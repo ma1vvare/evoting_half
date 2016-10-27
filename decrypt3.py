@@ -43,6 +43,7 @@ def readCipher3():
 def writePlaintext(plain):
   f = open('server3_plain.txt', "w+")
   f.write(plain)
+
 n = read_server3_pk()
 read_server3_sk()
 # print "n :", n
@@ -54,5 +55,5 @@ mu = sklist[1]
 # print "mu :", mu
 
 plain = decrypt(int(cipher3), int(n), int(lam), int(mu))
-print "plain :", plain
-writePlaintext(str(plain))
+print "plain3 :", plain
+writePlaintext(str(plain) + '\n')

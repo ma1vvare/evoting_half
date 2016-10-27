@@ -55,5 +55,5 @@ mu = sklist[1]
 # print "mu :", mu
 
 plain = decrypt(int(cipher2), int(n), int(lam), int(mu))
-print "plain :", plain
-writePlaintext(str(plain))
+print "plain2 :", plain
+writePlaintext(str(plain) + '\n')

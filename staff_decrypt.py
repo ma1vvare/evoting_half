@@ -1,6 +1,8 @@
 from termcolor import colored
+from array import array
 import random
 import sys
+import csv
 import math
 import M2Crypto
 import time
@@ -21,8 +23,8 @@ def decrypt(cipher, n, lam, mu):
   return plain
 
 
-def read_server1_pk():
-  for line in open('server1_pk.txt', "r+"):
+def read_staff_pk():
+  for line in open('staff_pk.txt', "r+"):
     # print line
     n = line
     return n
@@ -30,13 +32,13 @@ def read_server1_pk():
 sklist = []
 
 
-def read_server1_sk():
-  for line in open('server1_sk.txt', "r+"):
+def read_staff_sk():
+  for line in open('staff_sk.txt', "r+"):
     sklist.append(line)
 
 
-def readCipher1():
-  for line in open('cipher1.txt', "r+"):
+def readCipher():
+  for line in open('paillier_cipher3.txt', "r+"):
     return line
 
 
@@ -44,16 +46,28 @@ def writePlaintext(plain):
   f = open('server1_plain.txt', "w+")
   f.write(plain)
 
-n = read_server1_pk()
-read_server1_sk()
+n = read_staff_pk()
+read_staff_sk()
 # print "n :", n
-cipher1 = readCipher1()
+cipher1 = readCipher()
 # print "cipher1 :", cipher1
 lam = sklist[0]
 mu = sklist[1]
 # print "lam :", lam
 # print "mu :", mu
-
+counter = []
 plain = decrypt(int(cipher1), int(n), int(lam), int(mu))
-print "plain1 :", plain
-writePlaintext(str(plain) + '\n')
+print "plain :", plain
+#a = array("i", [10, 20, 30])
+# for value in a:
+#  print(value)
+#writePlaintext(str(plain) + '\n')
+candidate = [10, 20, 30, 40, 50]  # (0,0)
+vote_counter = [1, 2, 3, 4, 5]  # (1,0) (1,1) (1,2) (1,3) (1,4)
+for value in candidate:
+  if plain == candidate[0]:
+    vote_counter[0] = vote_counter[0] + 100
+#vote_counter[1] = vote_counter[1] + 10
+total = [candidate, vote_counter]
+for value in total:
+  print value

@@ -9,17 +9,29 @@ var sha3_256 = require("js-sha3").sha3_256;
 var secret;
 secret = process.argv[2];
 console.log(secret);
+console.log(typeof secret);
 //Randomly split data into three numbers.
 var m1;
 var m2;
 var m3;
-
+var check='NO';
 function splitInfo(s){
-  m1 = s - Math.floor((Math.random() * 10) + 1);
-  s = s - m1;
-  m2 = s - Math.floor((Math.random() * 10) + 1);
-  s = s - m2;
-  m3 = s;
+  while(check=='NO'){
+    m1 = s - Math.floor((Math.random() * 10) + 1);
+    s = s - m1;
+    m2 = s - Math.floor((Math.random() * 10) + 1);
+    s = s - m2;
+    m3 = s;
+    if(m1<0||m2<0||m3<0){
+      check='NO';
+    }
+    else if(m1+m2+m3!=secret){
+      check='NO';
+    }
+    else{
+      check='YES';
+    }
+}
 }
 
 splitInfo(secret);

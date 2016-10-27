@@ -100,17 +100,17 @@ function readFile(pub){
     while (index > -1) {
       var line = remaining.substring(4, index);//remove oher info
       remaining = remaining.substring(index + 5);//remove other info
-      console.log('Line: ' + line);
-      console.log('typeof: ' + typeof(line));
+      //console.log('Line: ' + line);
+      //console.log('typeof: ' + typeof(line));
       pub = line;
-      console.log('------');
+      //console.log('------');
       index = remaining.indexOf('\n');
     }
   });
 
   input.on('end', function() {
     if (remaining.length > 0) {
-      console.log('Line: ' + remaining);
+      //console.log('Line: ' + remaining);
     }
   });
 }
